@@ -1,0 +1,43 @@
+version: '2'
+services:
+  nginx:
+    build: nginx-image
+    networks:
+      - confluence_network
+      - default
+    links:
+      - letsencrypt
+    external_links:
+      - confluence-fgh
+    environment:
+      - MY_DOMAIN_NAME=wiki.fgh.org.mz
+    mem_limit: 2g
+    cpu_shares: 256
+    # restart: always
+    ports: 
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "tls-config:/etc/letsencrypt"
+      - "cert:/var/lib/letsencrypt"
+  letsencrypt:
+    image: quay.io/letsencrypt/letsencrypt:latest
+    command: bash -c "sleep 6 && certbot certonly --standalone -d wiki.fgh.org.mz --text --agree-tos --email mhawila.a.mhawila@vanderbilt.edu --server https://acme-v01.api.letsencrypt.org/directory --rsa-key-size 4096 --verbose --renew-by-default --standalone-supported-challenges http-01"
+    entrypoint: ""
+    volumes:
+      - "tls-config:/etc/letsencrypt"
+      - "cert:/var/lib/letsencrypt"
+    ports:
+      - "80"
+      - "443"
+    environment:
+      - TERM=xterm
+
+networks:
+ confluence_network:
+  external:
+   name: confluence_default
+
+volumes:
+ tls-config:
+ cert:

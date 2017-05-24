@@ -1,0 +1,25 @@
+# This file is used for testing by exposing the port to host, making the service
+# reachable without going through the proxy. Once the testing is done, the line
+# exposing the port should be removed to ensure all traffic goes through the proxy.
+version: '2'
+services:
+    mysql-confluence:
+       build: mysql
+       container_name: mysql-confluence
+       volumes:
+         - /opt/data
+       hostname: mysql-confluence
+       restart: unless-stopped
+    confluence-fgh:
+       image: cptactionhank/atlassian-confluence
+       ports:
+         - "80:8090"
+       container_name: confluence-fgh
+       depends_on:
+         - mysql-confluence
+       links:
+         - mysql-confluence
+       volumes:
+         - /opt/data/webapp:/usr/local/tomcat/webapps
+       hostname: confluence-fgh
+       restart: unless-stopped

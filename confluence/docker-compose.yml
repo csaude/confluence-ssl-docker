@@ -1,0 +1,20 @@
+version: '2'
+services:
+    mysql-confluence:
+       build: mysql
+       container_name: mysql-confluence
+       volumes:
+         - /opt/data
+       hostname: mysql-confluence
+       restart: unless-stopped
+    confluence-fgh:
+       build: confluence
+       container_name: confluence-fgh
+       depends_on:
+         - mysql-confluence
+       links:
+         - mysql-confluence
+       volumes:
+         - /opt/data/webapp:/usr/local/tomcat/webapps
+       hostname: confluence-fgh
+       restart: unless-stopped
